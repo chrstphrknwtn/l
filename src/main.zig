@@ -18,7 +18,7 @@ pub fn main() !u8 {
     defer std.process.argsFree(allocator, args);
     const targetPath: []const u8 = if (args.len > 1) args[1] else "./";
 
-    // TODO: print immediately and exist if targetPath is a file
+    // TODO: print immediately and exit if targetPath is a file
     //
     // Collect Dir Entries
     //
@@ -37,6 +37,7 @@ pub fn main() !u8 {
     //
     // Sort
     //
+    std.mem.sort(DirEntry, entries, {}, nameCompare);
 
     //
     // Print
@@ -60,6 +61,10 @@ fn collectEntries(allocator: std.mem.Allocator, targetPath: []const u8) ![]DirEn
     }
 
     return entry_list.toOwnedSlice();
+}
+
+fn nameCompare(_: void, a: DirEntry, b: DirEntry) bool {
+    return a.name[0] < b.name[0];
 }
 
 fn printEntry(entry: DirEntry) !void {
