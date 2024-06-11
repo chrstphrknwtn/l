@@ -64,7 +64,7 @@ fn collectEntries(allocator: std.mem.Allocator, targetPath: []const u8) ![]DirEn
 }
 
 fn nameCompare(_: void, a: DirEntry, b: DirEntry) bool {
-    return a.name[0] < b.name[0];
+    return std.mem.lessThan(u8, a.name, b.name);
 }
 
 fn printEntry(entry: DirEntry) !void {
