@@ -18,11 +18,10 @@ pub fn main() !u8 {
     defer std.process.argsFree(allocator, args);
     const targetPath: []const u8 = if (args.len > 1) args[1] else "./";
 
-    // TODO: print immediately and exit if targetPath is a file
     //
-    // Collect Dir Entries
+    // Stat target
     //
-    const entries = collectEntries(allocator, targetPath) catch |err| {
+    const stat = std.fs.cwd().statFile(targetPath) catch |err| {
         switch (err) {
             error.AccessDenied => stderr.print("l: {s}: Operation not permitted\n", .{targetPath}) catch {},
             error.FileNotFound => stderr.print("l: {s}: No such file or directory\n", .{targetPath}) catch {},
@@ -32,6 +31,22 @@ pub fn main() !u8 {
             },
         }
         return 1;
+    };
+
+    //
+    // Print target unless dir
+    //
+    if (stat.kind != .directory) {
+        const entry = DirEntry{ .name = targetPath };
+        try printEntry(entry);
+        return 0;
+    }
+
+    //
+    // Collect Dir Entries
+    //
+    const entries = collectEntries(allocator, targetPath) catch {
+        unreachable;
     };
 
     //
